@@ -14,8 +14,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ロギングの設定
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')
+    ]
+)
 logger = logging.getLogger(__name__)
+
+# アプリケーション起動時のログ
+logger.info("アプリケーションを起動します")
+#logger.info(f"データベース接続情報: {DB_CONFIG}")
 
 app = FastAPI()
 
@@ -24,6 +35,7 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST'),
     'user': os.getenv('DB_USER'),
     'password': os.getenv('DB_PASSWORD'),
+    'port': os.getenv('DB_PORT'),
     'database': os.getenv('DB_NAME')
 }
 
@@ -31,6 +43,9 @@ DB_CONFIG = {
 origins = [
     "http://localhost:3000",    # Next.jsのデフォルトポート
     "http://localhost:8000",    # FastAPIのデフォルトポート
+    "https://*.azurewebsites.net",  # Azure App Service
+    "https://*.vercel.app",     # Vercel
+    "*"  # 開発中は全てのオリジンを許可
 ]
 
 app.add_middleware(
